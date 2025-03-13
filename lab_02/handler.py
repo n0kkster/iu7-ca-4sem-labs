@@ -1,7 +1,7 @@
 from sys import exit
 
 from iops import read_data
-from interp import interp_newton_3d, interp_spline_3d
+from interp import interp_newton_3d, interp_spline_3d, interp_mixed_3d
 
 def process_choice(choice: int):
     match choice:
@@ -9,7 +9,11 @@ def process_choice(choice: int):
             process_newton()
         case 2:
             process_spline()
+        case 3:
+            process_mixed()
         case 0:
+            process_exit()
+        case _:
             process_exit()
 
 def process_newton():
@@ -28,7 +32,7 @@ def process_newton():
     
     x, y, z = map(float, input('Введите x, y, z для интерполяции: ').split())
     res = interp_newton_3d(body, x, y, z, nx, ny, nz)
-    print(res)
+    print(f'Значение функции при интерполяции полиномом Ньютона: {res:.3f}')
 
 def process_spline():
     filename: str = input('Введите имя файла: ')
@@ -36,7 +40,26 @@ def process_spline():
     
     x, y, z = map(float, input('Введите x, y, z для интерполяции: ').split())
     res = interp_spline_3d(body, x, y, z)
-    print(res)
+    print(f'Значение функции при интерполяции сплайном: {res:.3f}')
+
+def process_mixed():
+    filename: str = input('Введите имя файла: ')
+    body = read_data(filename)
+
+    max_deg_z = len(body) - 1
+    max_deg_y = len(body[0]) - 1
+    max_deg_x = len(body[0][0]) - 1
+
+    nx, ny, nz = map(int, input(f'Введите степени полинома Ньютона nx <= {max_deg_x}, ny <= {max_deg_y}, nz <= {max_deg_z} или -1 для интерполяции по данному направлению: ').split())
+    
+    if (nx > max_deg_x or ny > max_deg_y or nz > max_deg_z):
+        print('Введена слишком большая степень полинома!')
+        exit(1)
+    
+    x, y, z = map(float, input('Введите x, y, z для интерполяции: ').split())
+    res = interp_mixed_3d(body, x, y, z, nx, ny, nz)
+    print(f'Значение функции при смешанной интерполяции: {res:.3f}')
+
 
 def process_exit():
     exit(1)

@@ -54,9 +54,6 @@ def spline_interp(x: list[float], y: list[float], x_val: float):
     Возвращает:
         function: Функция, вычисляющая значение сплайна в заданной точке.
     """
-    # Проверка входных данных
-    if len(x) != len(y) or len(x) < 2:
-        raise ValueError("Списки x и y должны иметь одинаковую длину и содержать минимум 2 точки")
     
     n = len(x) - 1  # Количество интервалов
     h = [x[i + 1] - x[i] for i in range(n)]  # Шаги между узлами
@@ -87,19 +84,12 @@ def spline_interp(x: list[float], y: list[float], x_val: float):
     b = [(y[i + 1] - y[i]) / h[i] - h[i] * (m[i + 1] + 2 * m[i]) / 6 for i in range(n)]
     c = [m[i] / 2 for i in range(n)]
     d = [(m[i + 1] - m[i]) / (6 * h[i]) for i in range(n)]
+            
+    for i in range(n):
+        if x[i] <= x_val <= x[i + 1]:
+            dx = x_val - x[i]
+            return a[i] + b[i] * dx + c[i] * dx**2 + d[i] * dx**3
     
-    # Шаг 4: Определение функции сплайна
-    def spline_func(x_val: float) -> float:
-        """Вычисляет значение сплайна в точке x_val."""
-        if x_val < x[0] or x_val > x[-1]:
-            raise ValueError(f"Точка {x_val} вне диапазона интерполяции [{x[0]}, {x[-1]}]")
-        
-        for i in range(n):
-            if x[i] <= x_val <= x[i + 1]:
-                dx = x_val - x[i]
-                return a[i] + b[i] * dx + c[i] * dx**2 + d[i] * dx**3
-    
-    return spline_func(x_val)
 
 def interp_point(line, x, n, method):
     x_arr = list(range(len(line)))
@@ -137,4 +127,10 @@ def interp_spline_3d(body, x, y, z):
     plane = interp_plane(body, z, 0, 'spline')
     line = interp_line(plane, y, 0, 'spline')
     point = interp_point(line, x, 0, 'spline')
+    return point
+
+def interp_mixed_3d(body, x, y, z, nx, ny, nz):
+    plane = interp_plane(body, z, nz, 'newton' if nz != -1 else 'spline')
+    line = interp_line(plane, y, ny, 'newton' if ny != -1 else 'spline')
+    point = interp_point(line, x, nx, 'newton' if nx != -1 else 'spline')
     return point
