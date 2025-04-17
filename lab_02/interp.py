@@ -1,19 +1,15 @@
 def select_closest_points(x: float, x_data: list[float], num_points: int) -> list[int]:
-    # Вычисляем расстояния от x до всех точек x_data
     distances = [abs(x - x_point) for x_point in x_data]
-    # Сортируем индексы по расстояниям
     indices = sorted(range(len(distances)), key=lambda i: distances[i])
-    # Возвращаем первые num_points индексов
     return indices[:num_points]
 
 def newton_divided_differences(x_points: list[float], y_points: list[float]) -> list[list[float]]:
     n = len(x_points)
-    # Создаем двумерный список для разделенных разностей
     dd = [[0.0] * n for _ in range(n)]
-    # Первая колонка — значения y
+
     for i in range(n):
         dd[i][0] = y_points[i]
-    # Вычисляем разделенные разности
+
     for k in range(1, n):
         for i in range(n - k):
             dd[i][k] = (dd[i + 1][k - 1] - dd[i][k - 1]) / (x_points[i + k] - x_points[i])
@@ -21,9 +17,7 @@ def newton_divided_differences(x_points: list[float], y_points: list[float]) -> 
 
 def newton_eval(x_eval: float, x_points: list[float], dd: list[list[float]]) -> float:
     n = len(x_points)
-    # Начальное значение — первая разделенная разность нулевого порядка
     p = dd[0][0]
-    # Вычисляем полином по схеме Горнера
     for k in range(1, n):
         term = dd[0][k]
         for j in range(k):
@@ -32,29 +26,14 @@ def newton_eval(x_eval: float, x_points: list[float], dd: list[list[float]]) -> 
     return p
 
 def newton_interp(x: list[float], y: list[float], x_inp: float, n: int) -> float:
-    # Выбираем ближайшие точки
     indices = select_closest_points(x_inp, x, n + 1)
-    # Формируем подмножества x и y
     x_ = [x[i] for i in indices]
     y_ = [y[i] for i in indices]
-    # Вычисляем разделенные разности
     dd = newton_divided_differences(x_, y_)
-    # Оцениваем значение полинома в точке x_inp
     res = newton_eval(x_inp, x_, dd)
     return res
 
-def spline_interp(x: list[float], y: list[float], x_val: float):
-    """
-    Создает функцию кубической сплайн-интерполяции для заданных точек (x, y).
-    
-    Аргументы:
-        x (list[float]): Список координат x, отсортированный по возрастанию.
-        y (list[float]): Список соответствующих значений y.
-    
-    Возвращает:
-        function: Функция, вычисляющая значение сплайна в заданной точке.
-    """
-    
+def spline_interp(x: list[float], y: list[float], x_val: float):    
     n = len(x) - 1  # Количество интервалов
     h = [x[i + 1] - x[i] for i in range(n)]  # Шаги между узлами
     
