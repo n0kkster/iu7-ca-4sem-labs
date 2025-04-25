@@ -77,16 +77,15 @@ def make_slau_matrix(table, n):
             matrix[i][j] = 0.0
             matrix[i][n + 1] = 0.0
 
-            # Цикл по точкам таблицы
             for k in range(size):
                 weight = table[k][2]
                 x = table[k][0]
                 y = table[k][1]
 
-                # Добавляем вклад в матрицу: ρ_k * x_k^(i+j)
+                # Добавляем вклад в матрицу: p_k * x_k^(i+j)
                 matrix[i][j] += weight * pow(x, (i + j))
                 
-                # Добавляем вклад в правую часть: ρ_k * y_k * x_k^i
+                # Добавляем вклад в правую часть: p_k * y_k * x_k^i
                 matrix[i][n + 1] += weight * y * pow(x, i)
     
     return matrix
@@ -95,7 +94,7 @@ def make_slau_matrix(table, n):
 def solve_matrix_gauss(matrix):
     size = len(matrix)
     
-    # Прямой ход метода Гаусса
+    # Прямой ход
     for i in range(size):
         # Перебираем строки ниже текущей
         for j in range(i + 1, size):
@@ -108,9 +107,9 @@ def solve_matrix_gauss(matrix):
                 matrix[j][q] -= k * matrix[i][q]
     
     # Создаём список для результатов (коэффициентов)
-    result = [0 for i in range(size)]
+    result = [0 for _ in range(size)]
     
-    # Обратный ход метода Гаусса
+    # Обратный ход
     for i in range(size - 1, -1, -1):
         # Вычитаем вклад уже найденных коэффициентов
         for j in range(size - 1, i, -1):

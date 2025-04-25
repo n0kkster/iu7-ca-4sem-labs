@@ -1,19 +1,13 @@
-# Главный файл программы
 import numpy as np
 from random import random
 from approx import generate_table, change_weight, print_table, solve_task_1d, generate_table_2d, print_table_2d, solve_task_2d
 from diffeq import solve_diff_eq
 
-# Константы
 SIZE_TABLE = 7  # Количество точек в таблице
 BASE_WEIGHT = 1  # Базовый вес точек
 EPS = 0.01  # Шаг для графика
 
-# Вывод меню
 def print_menu():
-    """
-    Выводит меню с доступными действиями.
-    """
     print("\n1. Распечатать таблицу (одномерная аппроксимация)\n"
           "2. Изменить вес точки (одномерная аппроксимация)\n"
           "3. Вывести результаты одномерной аппроксимации\n"
@@ -22,13 +16,9 @@ def print_menu():
           "6. Решить дифференциальное уравнение\n"
           "0. Выйти\n")
 
-# Главная функция
 def main():
-    """
-    Управляет выполнением программы через интерактивное меню.
-    """
-    table = generate_table()  # Таблица для одномерной аппроксимации
-    table_2d = generate_table_2d()  # Таблица для двумерной аппроксимации
+    table = generate_table()
+    table_2d = generate_table_2d()
     
     action = 1
     while action != 0:

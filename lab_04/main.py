@@ -1,51 +1,39 @@
-# Импорт необходимых библиотек
 from half_division import HalfDivision
 from newton_system import NewtonSystem
 from sympson import SympsonIntegral
 from numpy import linspace, exp, sqrt
 from math import pi
 import matplotlib.pyplot as plt
-from typing import Callable
 
-# Флаг для отображения графиков
 SHOW_GRAPHS = True
 
-# Определение системы уравнений
 def f1(x, y, z):
-    """Первое уравнение: x^2 + y^2 + z^2 - 1 = 0"""
     return x**2 + y**2 + z**2 - 1
 
 def f2(x, y, z):
-    """Второе уравнение: 2x^2 + y^2 - 4z = 0"""
     return 2 * x**2 + y**2 - 4 * z
 
 def f3(x, y, z):
-    """Третье уравнение: 3x^2 - 4y + z^2 = 0"""
     return 3 * x**2 - 4 * y + z**2
 
 def jacobian(x, y, z):
-    """Матрица Якоби для системы уравнений"""
-    return [  # J[i][j] = df_i(x_j) / dx_j
+    return [
         [2 * x, 2 * y, 2 * z],
         [4 * x, 2 * y, -4],
         [6 * x, -4, 2 * z],
     ]
 
-# Функция для решения системы уравнений с разными начальными приближениями
 def solve_system():
-    """Решение системы уравнений для нескольких начальных приближений"""
     initial_guesses = [
         (1, 1, 1),
-        (42, 54, 87),
+        (42, 88, 14),
         (-100500, 69420, 2281337)
     ]
     
     for x0, y0, z0 in initial_guesses:
-        # Решение системы методом Ньютона
-        res, iters = NewtonSystem(jacobian, [f1, f2, f3], [x0, y0, z0], iter_limit=130)
+        res, iters = NewtonSystem(jacobian, [f1, f2, f3], [x0, y0, z0], iter_limit=666)
         xres, yres, zres = res
         
-        # Форматированный вывод результатов
         print("\n" + "="*50)
         print(f"{'Решение системы уравнений':^50}")
         print("="*50)
@@ -69,26 +57,20 @@ def solve_system():
         print(f"{'f3(x, y, z)':<30} | {f3(xres, yres, zres):>15.6f}")
         print("="*50)
 
-# Функция для вычисления функции Лапласа (нормального распределения)
-def Laplas(x: float | int, integralCount: int = 10, integralCallback: Callable = SympsonIntegral):
-    """Вычисление функции Лапласа с использованием численного интегрирования"""
+def Laplas(x, integralCount = 10, integralCallback = SympsonIntegral):
     def underIntegralFunc(t):
-        """Подынтегральная функция: exp(-t^2 / 2)"""
         return exp(-(t**2) / 2)
     
     linspace_to_x = list(linspace(0, x, integralCount))
     return 2 / sqrt(2 * pi) * integralCallback(linspace_to_x, underIntegralFunc)
 
-# Функция для нахождения аргументов функции Лапласа
 def find_laplace_argument():
-    """Поиск значений x для заданных y функции Лапласа"""
     x = linspace(-5, 5, 100)
     y = Laplas(x)
     
     target_y = [0, 0.3, -0.42, 0.96]
     found_x = [HalfDivision(Laplas, y_val, min(x), max(x), iter_limit=30)[0] for y_val in target_y]
     
-    # Форматированный вывод результатов
     print("\n" + "="*40)
     print(f"{'Аргументы функции Лапласа':^40}")
     print("="*40)
@@ -98,7 +80,6 @@ def find_laplace_argument():
         print(f"{y_val:<20.6f} | {x_val:>15.6f}")
     print("="*40)
     
-    # Построение графика (если включено)
     if SHOW_GRAPHS:
         plt.figure(figsize=(10, 6))
         plt.plot(x, y, label='Функция Лапласа')
@@ -110,28 +91,25 @@ def find_laplace_argument():
         plt.grid(True)
         plt.show()
 
-# Функции для решения краевой задачи
-x0, y0 = 0, 1  # Граничное условие при x=0
-x1, y1 = 1, 3  # Граничное условие при x=1
-N = 100  # Количество узлов сетки
-step = (x1 - x0) / N  # Шаг сетки
+x0, y0 = 0, 1
+x1, y1 = 1, 3
+N = 100 
+step = (x1 - x0) / N
 
 def jacobian_diff(*y):
-    """Матрица Якоби для дискретизированного дифференциального уравнения"""
     n = len(y)
     res = []
     
-    res.append([1] + [0] * (n - 1))  # Граничное условие при x=0
+    res.append([1] + [0] * (n - 1)) 
     
     for i in range(1, n - 1):
         row = [0] * (i - 1) + [1 / step**2] + [-2 / step**2 - 3 * y[i] ** 2] + [1 / step**2] + [0] * (n - i - 2)
         res.append(row)
     
-    res.append([0] * (n - 1) + [1])  # Граничное условие при x=1
+    res.append([0] * (n - 1) + [1])  
     return res
 
 def f(n, x):
-    """Определение функций для дискретизированного дифференциального уравнения"""
     if n == 0:
         def resf(*y: list[float | int]) -> float:
             return y[0] - y0
@@ -144,20 +122,16 @@ def f(n, x):
     return resf
 
 def starty(x):
-    """Начальное приближение для y: линейная интерполяция между граничными условиями"""
     return 2 * x + 1
 
 def solve_boundary_problem():
-    """Численное решение краевой задачи y'' - y^3 = x^2"""
     x = linspace(x0, x1, N + 1)
     y = [starty(xp) for xp in x]
     
     funcs = [f(n, x) for n in range(N + 1)]
     
-    # Решение методом Ньютона
     res, iters = NewtonSystem(jacobian_diff, funcs, y, iter_limit=30, eps=1e-15)
     
-    # Форматированный вывод результатов
     print("\n" + "="*40)
     print(f"{'Решение краевой задачи':^40}")
     print("="*40)
@@ -166,7 +140,6 @@ def solve_boundary_problem():
     print(f"{'Количество итераций':<20} | {iters:>15}")
     print("="*40)
     
-    # Построение графика (если включено)
     if SHOW_GRAPHS:
         plt.figure(figsize=(10, 6))
         plt.plot(x, res, label='Решение краевой задачи')
@@ -177,9 +150,7 @@ def solve_boundary_problem():
         plt.grid(True)
         plt.show()
 
-# Интерфейс с меню
 def main():
-    """Главная функция с бесконечным циклом меню для взаимодействия с пользователем"""
     while True:
         print("\n" + "="*40)
         print(f"{'МЕНЮ':^40}")
@@ -207,6 +178,5 @@ def main():
         else:
             print("Неверный выбор. Пожалуйста, введите 0, 1, 2 или 3.")
 
-# Запуск программы
 if __name__ == "__main__":
     main()
