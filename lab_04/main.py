@@ -111,13 +111,13 @@ def jacobian_diff(*y):
 
 def f(n, x):
     if n == 0:
-        def resf(*y: list[float | int]) -> float:
+        def resf(*y):
             return y[0] - y0
     elif n == N:
-        def resf(*y: list[float | int]) -> float:
+        def resf(*y):
             return y[n] - y1
     else:
-        def resf(*y: list[float | int]) -> float:
+        def resf(*y):
             return (y[n - 1] + -2 * y[n] + y[n + 1]) / step**2 - y[n] ** 3 - x[n] ** 2
     return resf
 

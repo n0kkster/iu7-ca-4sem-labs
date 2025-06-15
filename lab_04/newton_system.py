@@ -1,13 +1,7 @@
 from math import sqrt
 from gauss import Gauss
 
-def NewtonSystem(
-    Jfunc,
-    funcs,
-    start_root_approx,
-    iter_limit = 10,
-    eps = 1e-6,
-):
+def NewtonSystem(Jfunc, funcs, start_root_approx, iter_limit = 10, eps = 1e-6):
     def f(x):
         return [f(*x) for f in funcs]
 
